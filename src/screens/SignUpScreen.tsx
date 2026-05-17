@@ -18,6 +18,7 @@ import {
   Keyboard,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import ImageCropPicker from 'react-native-image-crop-picker';
 import { ImagePickerSheet } from '../components/ImagePickerSheet';
 import { signUpStyles as styles, C } from '../styles/SignUp.styles';
 import { idCheck as apiIdCheck, signUp, uploadProfileImage } from '../services/api/SignUpApi';
@@ -157,11 +158,29 @@ const SignUpScreen: React.FC<Props> = ({ navigation, route }) => {
     }, 150);
   }, [pickerHeightAnim]);
 
-  // 사진 1장 선택 즉시 프로필 적용
-  const handleProfileSelection = useCallback((uris: string[]) => {
-    if (uris.length > 0) {
-      setProfileUri(uris[uris.length - 1]);
-      closePicker();
+  // 사진 선택 후 크롭 편집 화면 오픈
+  const handleProfileSelection = useCallback(async (uris: string[]) => {
+    if (uris.length === 0) { return; }
+    closePicker();
+    const uri = uris[uris.length - 1];
+    try {
+      const cropped = await ImageCropPicker.openCropper({
+        path: uri,
+        mediaType: 'photo',
+        width: 600,
+        height: 600,
+        cropping: true,
+        cropperToolbarTitle: '사진 편집',
+        cropperActiveWidgetColor: '#7c3aed',
+        cropperStatusBarLight: false,
+        cropperToolbarColor: '#7c3aed',
+        cropperToolbarWidgetColor: '#ffffff',
+      });
+      setProfileUri(cropped.path);
+    } catch (e: any) {
+      if (e?.code !== 'E_PICKER_CANCELLED') {
+        Alert.alert('오류', '사진 편집에 실패했습니다.');
+      }
     }
   }, [closePicker]);
 

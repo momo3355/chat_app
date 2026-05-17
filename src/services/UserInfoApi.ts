@@ -6,6 +6,7 @@ export interface UserSearchParams {
   gender?: string | null;
   ageFrom?: number | null;
   ageTo?: number | null;
+  maxDistance?: number | null;
   page?: number;
   size?: number;
 }
@@ -19,6 +20,7 @@ export const searchUsers = async (params: UserSearchParams): Promise<UserSearchR
   if (params.gender != null) queryParams.gender = params.gender;
   if (params.ageFrom != null) queryParams.ageFrom = String(params.ageFrom);
   if (params.ageTo != null) queryParams.ageTo = String(params.ageTo);
+  if (params.maxDistance != null) queryParams.maxDistance = String(params.maxDistance);
 
   const response = await apiClient.get<UserSearchResponse>('/user/search', { params: queryParams });
   return response.data;
