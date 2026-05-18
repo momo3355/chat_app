@@ -19,5 +19,6 @@ export interface ChatMessageProps {
 export interface ChatHeaderProps {
   title: string;
   isConnected: boolean;
-  onBack: () => void;      
+  onBack: () => void;
+  onLeave: () => void;
 }

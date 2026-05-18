@@ -139,10 +139,16 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
     }
   }, [hasMore, loadingMore, loading, cursor, loadPhotos]);
 
+  const MAX_SELECTION = 4;
+
   const toggleSelection = useCallback((uri: string) => {
     if (selectedUris.includes(uri)) {
       onSelectionChange(selectedUris.filter(u => u !== uri));
     } else {
+      if (selectedUris.length >= MAX_SELECTION) {
+        Alert.alert('선택 제한', `사진은 최대 ${MAX_SELECTION}장까지 선택할 수 있습니다.`);
+        return;
+      }
       onSelectionChange([...selectedUris, uri]);
     }
   }, [selectedUris, onSelectionChange]);
@@ -175,7 +181,7 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
 
       <View style={sheetStyles.header}>
         <Text style={sheetStyles.headerTitle}>
-          {selectedUris.length > 0 ? `${selectedUris.length}장 선택됨` : '사진 선택'}
+          {selectedUris.length > 0 ? `${selectedUris.length} / ${MAX_SELECTION}장 선택됨` : '사진 선택 (최대 4장)'}
         </Text>
         {/* 현재 열 수 표시 (줌 레벨) */}
         <View style={sheetStyles.zoomIndicator}>

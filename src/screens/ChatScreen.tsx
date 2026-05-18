@@ -88,7 +88,7 @@ useEffect(() => {
     }
   };
   loadHistory();
-}, [roomId, loadMessgeInfoPosts, mergePendingMessages]);
+}, [roomId, userId, loadMessgeInfoPosts, mergePendingMessages]);
 
 useEffect(() => {
   if (messages.length > 0 && !listRevealedRef.current) {
@@ -197,7 +197,7 @@ const handleSend = useCallback(async () => {
     sendMessage('TALK', inputMessage);
     setInputMessage('');
   }
-}, [isUploading, selectedImages, inputMessage, sendMessage, closePicker, chatFileUpload, roomId, userId]);
+}, [isUploading, selectedImages, inputMessage, sendMessage, closePicker, chatFileUpload, roomId, userId, isConnected, reconnect]);
 
 const chatItems = useMemo((): ChatItem[] => {
   const items: ChatItem[] = [];
@@ -230,6 +230,16 @@ const renderItem = useCallback(({ item }: { item: ChatItem }) => {
         onBack={() => navigation.goBack()}
         isConnected={isConnected}
         title={roomName}
+        onLeave={() =>
+          Alert.alert(
+            '대화방 나가기',
+            '대화방을 나가시겠습니까?',
+            [
+              { text: '취소', style: 'cancel' },
+              { text: '나가기', style: 'destructive', onPress: () => navigation.goBack() },
+            ],
+          )
+        }
       />
       <View style={{ flex: 1 }}>
         <FlatList
