@@ -57,6 +57,15 @@ const ImageMessage: React.FC<{ imageInfo?: string; sender?: string; maxWidth: nu
 
 export const ChatMessage: React.FC<ChatMessageProps> = ({ item, isMyMessage }) => {
   const { width: screenWidth } = useWindowDimensions();
+
+  if (item.type === 'QUIT') {
+    return (
+      <View style={styles.systemMessageContainer}>
+        <Text style={styles.systemMessageText}>상대방이 대화방에서 나갔습니다.</Text>
+      </View>
+    );
+  }
+
   const isImage = item.type === 'IMAGE';
 
   const imageMaxWidth = Math.min(

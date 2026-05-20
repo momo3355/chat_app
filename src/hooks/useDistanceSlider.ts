@@ -11,9 +11,11 @@ export const useDistanceSlider = (
   const [sliderWidth, setSliderWidth] = useState(0);
   const sliderWidthRef = useRef(0);
   const [sliderTempValue, setSliderTempValue] = useState(filterDistance ?? 10);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
   useEffect(() => {
     setSliderTempValue(filterDistance ?? 10);
+    setHasInteracted(false);
   }, [filterDistance]);
 
   const onConfirmRef = useRef(onConfirm);
@@ -27,16 +29,19 @@ export const useDistanceSlider = (
         const val = Math.max(1, Math.min(SLIDER_MAX,
           Math.round(1 + (evt.nativeEvent.locationX / sliderWidthRef.current) * (SLIDER_MAX - 1))));
         setSliderTempValue(val);
+        setHasInteracted(true);
       },
       onPanResponderMove: evt => {
         const val = Math.max(1, Math.min(SLIDER_MAX,
           Math.round(1 + (evt.nativeEvent.locationX / sliderWidthRef.current) * (SLIDER_MAX - 1))));
         setSliderTempValue(val);
+        setHasInteracted(true);
       },
       onPanResponderRelease: evt => {
         const val = Math.max(1, Math.min(SLIDER_MAX,
           Math.round(1 + (evt.nativeEvent.locationX / sliderWidthRef.current) * (SLIDER_MAX - 1))));
         setSliderTempValue(val);
+        setHasInteracted(true);
       },
     })
   ).current;
@@ -57,5 +62,5 @@ export const useDistanceSlider = (
     : 0;
   const fillWidth = thumbLeft + THUMB_SIZE / 2;
 
-  return { sliderTempValue, distanceSliderPR, thumbLeft, fillWidth, onLayout, confirmDistance };
+  return { sliderTempValue, hasInteracted, distanceSliderPR, thumbLeft, fillWidth, onLayout, confirmDistance };
 };

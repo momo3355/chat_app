@@ -38,7 +38,7 @@ const HomeScreen: FC<HomeScreenProps> = React.memo(({ isActive }) => {
     isInitialized,
   } = useHomeFilter();
 
-  const { sliderTempValue, distanceSliderPR, thumbLeft, fillWidth, onLayout, confirmDistance } =
+  const { sliderTempValue, hasInteracted, distanceSliderPR, thumbLeft, fillWidth, onLayout, confirmDistance } =
     useDistanceSlider(filterDistance, confirmDistanceFilter);
 
   const { userList, isLoading, fetchUsers, loadMore, refreshKey } = useUserSearch(isActive);
@@ -163,7 +163,7 @@ const HomeScreen: FC<HomeScreenProps> = React.memo(({ isActive }) => {
         <View style={styles.inlineDropdown}>
           <View style={styles.sliderHeader}>
             <Text style={styles.sliderValueText}>
-              {filterDistance === null ? '전체' : `최대 ${sliderTempValue}km`}
+              {filterDistance === null && !hasInteracted ? '전체' : `최대 ${sliderTempValue}km`}
             </Text>
             <TouchableOpacity onPress={resetDistance}>
               <Text style={[styles.sliderResetBtn, filterDistance === null && styles.sliderResetBtnActive]}>

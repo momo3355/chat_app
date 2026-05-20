@@ -36,4 +36,5 @@ export interface ChatRoomActions {
   updateLastMessage: (roomId: string, message: string, time?: string, type?: string) => void;
   updateUnreadCount: (roomId: string, delta: number) => void;
   resetUnreadCount: (roomId: string) => void;
+  chatRoomOut: (userId: string, roomId: string) => Promise<boolean>;
 }

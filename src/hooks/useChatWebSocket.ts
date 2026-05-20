@@ -87,7 +87,7 @@ const useChatWebSocket = ({ userId, userName, roomId, token }: UseChatWebSocketT
 
   // 메시지 전송
   const sendMessage = useCallback((type: string, message: string, imageInfo?: string) => {
-    if (type !== 'IMAGE' && !message.trim()) { return; }
+    if (type !== 'IMAGE' && type !== 'QUIT' && !message.trim()) { return; }
     const messageToSend = {
         id: userId,
         sender: userId,

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { chatRoomList, loadMessgeInfoPosts, chatFileUpload } from '../api/ChatApi';
+import { chatRoomList, loadMessgeInfoPosts, chatFileUpload, chatRoomOut as chatRoomOutApi } from '../api/ChatApi';
 import { ChatRoomFormData, ChatRoomState, ChatRoomActions } from '../../types/ChatRoomTypes';
 import { SearchMessgeInfoParams, MessgeInfoResponse } from '../../types/MessgeTypes.ts';
 
@@ -66,6 +66,16 @@ const useChatStore = create<ChatStore>((set) => ({
         room.roomId === roomId ? { ...room, unreadCount: 0 } : room
       ),
     }));
+  },
+
+  chatRoomOut: async (userId: string, roomId: string): Promise<boolean> => {
+    const success = await chatRoomOutApi(userId, roomId);
+    if (success) {
+      set(state => ({
+        roomList: state.roomList.filter(room => room.roomId !== roomId),
+      }));
+    }
+    return success;
   },
 
   loadMessgeInfoPosts:async (params: SearchMessgeInfoParams): Promise<MessgeInfoResponse> => {

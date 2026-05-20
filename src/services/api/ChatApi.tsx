@@ -72,6 +72,16 @@ export const chatRoomCreate = async (params: ChatRoomCreateParams): Promise<{ ro
   return res.data;
 };
 
+export const chatRoomOut = async (userId: string, roomId: string): Promise<boolean> => {
+    try {
+        const res = await apiClient.post('/chat/out', { userId, roomId });
+        return res.data?.success === true;
+    } catch (error) {
+        console.error('❌ chatRoomOut API 오류:', error);
+        return false;
+    }
+};
+
 export const chatFileUpload = async (params: SearchMessgeInfoParams): Promise<MessgeInfoResponse> => {
     try {
         console.log('📤 [chatFileUpload] 업로드 시작:', {

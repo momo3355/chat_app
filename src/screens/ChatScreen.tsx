@@ -51,7 +51,7 @@ useAppState(
   }, [disconnect]),
 );
 
-const { loadMessgeInfoPosts, chatFileUpload } = useChatStore();
+const { loadMessgeInfoPosts, chatFileUpload, chatRoomOut } = useChatStore();
 
 const [lastMessageId, setLastMessageId] = useState(0);
 const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -165,6 +165,13 @@ const togglePicker = useCallback(() => {
 }, [pickerVisible, pickerHeightAnim, closePicker]);
 
 
+const handleLeave = useCallback(async () => {
+  sendMessage('QUIT', '');
+  disconnect();
+  await chatRoomOut(userId, roomId);
+  navigation.goBack();
+}, [sendMessage, disconnect, chatRoomOut, userId, roomId, navigation]);
+
 const handleSend = useCallback(async () => {
   if (isUploading) { return; }
 
@@ -236,7 +243,7 @@ const renderItem = useCallback(({ item }: { item: ChatItem }) => {
             '대화방을 나가시겠습니까?',
             [
               { text: '취소', style: 'cancel' },
-              { text: '나가기', style: 'destructive', onPress: () => navigation.goBack() },
+              { text: '나가기', style: 'destructive', onPress: handleLeave },
             ],
           )
         }

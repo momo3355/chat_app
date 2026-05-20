@@ -189,6 +189,20 @@ export const styles = StyleSheet.create({
   },
 
   // ===================
+  // 시스템 메시지 (QUIT 등)
+  // ===================
+  systemMessageContainer: {
+    alignSelf: 'stretch' as const,
+    alignItems: 'center' as const,
+    marginTop: 20,
+    marginBottom: 8,
+  },
+  systemMessageText: {
+    color: '#999999',
+    fontSize: 12,
+  },
+
+  // ===================
   // 날짜 구분선
   // ===================
   dateSeparatorContainer: {
