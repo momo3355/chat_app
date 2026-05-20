@@ -1,3 +1,6 @@
+const SERVER_BASE_URL = 'http://132.226.225.178:8888';
+const WEBSOCKET_URL = `${SERVER_BASE_URL}/ws-stomp`;
+
 export const matchRegionFromSido = (sido: string): number | null => {
   for (let i = 0; i < REGIONS.length; i++) {
     if (sido.includes(REGIONS[i])) { return i + 1; }
@@ -26,9 +29,6 @@ export const GENDER_ITEMS: { value: string | null; label: string }[] = [
 ];
 
 export const AGES = Array.from({ length: 81 }, (_, i) => i + 19);
-
-const SERVER_BASE_URL = 'http://132.226.225.178:8888';
-const WEBSOCKET_URL = `${SERVER_BASE_URL}/ws-stomp`;
 
 // 안전한 URL 반환 함수
 export const getWebSocketUrl = () => {
@@ -99,4 +99,18 @@ export const formatTime = (dateStr?: string): string => {
   const period = hours < 12 ? '오전' : '오후';
   const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
   return `${period} ${displayHour}:${String(minutes).padStart(2, '0')}`;
+};
+
+export const formatRelativeTime = (dateStr: string): string => {
+  const date = parseLocalDate(dateStr);
+  if (isNaN(date.getTime())) return '';
+  const diff = Date.now() - date.getTime();
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1) return '방금 전';
+  if (minutes < 60) return `${minutes}분 전`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}시간 전`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}일 전`;
+  return `${date.getFullYear()}.${date.getMonth() + 1}.${date.getDate()}`;
 };
