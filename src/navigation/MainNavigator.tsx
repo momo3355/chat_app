@@ -6,6 +6,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import HomeScreen from '../screens/HomeScreen';
 import ChatRoomScreen from '../screens/ChatRoomScreen';
+import FeedScreen from '../screens/FeedScreen';
+import FeedWriteScreen from '../screens/FeedWriteScreen';
 import ChatScreen from '../screens/ChatScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import { styles } from '../styles/MainNavigator.styles';
@@ -14,10 +16,10 @@ import { MainStackParamList } from '../types/MainTypes.ts';
 const Stack = createNativeStackNavigator<MainStackParamList>();
 
 const menuList = [
-  { key: 'Home',    iconName: 'search',    label: '친구찾기' },
-  { key: 'Room',    iconName: 'chat',      label: '대화방' },
-  { key: 'Chat',    iconName: 'favorite',  label: '매칭' },
-  { key: 'Setting', iconName: 'settings',  label: '설정' },
+  { key: 'Home',    iconName: 'search',        label: '친구찾기' },
+  { key: 'Room',    iconName: 'chat',          label: '대화방' },
+  { key: 'Feed',    iconName: 'dynamic-feed',  label: '소식' },
+  { key: 'Setting', iconName: 'settings',      label: '설정' },
 ];
 
 type BottomTabBarProps = {
@@ -62,6 +64,9 @@ const MainScreen = () => {
       <View style={[{ flex: 1 }, selectedTab !== 'Room' && { display: 'none' }]}>
         <ChatRoomScreen isActive={selectedTab === 'Room'} />
       </View>
+      <View style={[{ flex: 1 }, selectedTab !== 'Feed' && { display: 'none' }]}>
+        <FeedScreen isActive={selectedTab === 'Feed'} />
+      </View>
       <View style={[{ flex: 1 }, selectedTab !== 'Setting' && { display: 'none' }]}>
         <SettingsScreen />
       </View>
@@ -77,6 +82,7 @@ const MainAppNavigator = () => {
     >
       <Stack.Screen name="Main" component={MainScreen} />
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
+      <Stack.Screen name="FeedWriteScreen" component={FeedWriteScreen} />
     </Stack.Navigator>
   );
 };
