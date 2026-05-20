@@ -13,7 +13,7 @@ const useFeedStore = create<FeedStore>((set, get) => ({
   page: 0,
   errorMsg: null,
 
-  fetchFeed: async (userId: string, reset = true) => {
+  fetchFeed: async (userId: string) => {
     set({ isLoading: true, errorMsg: null });
     const res = await getFeedList(userId, 0, PAGE_SIZE);
     if (res.success) {

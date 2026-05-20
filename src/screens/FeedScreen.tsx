@@ -32,7 +32,7 @@ const FeedScreen: FC<FeedScreenProps> = React.memo(({ isActive }) => {
   useFocusEffect(
     useCallback(() => {
       if (isActive && user?.userId) {
-        fetchFeed(user.userId, true);
+        fetchFeed(user.userId);
       }
     }, [isActive, user?.userId, fetchFeed]),
   );
@@ -40,7 +40,7 @@ const FeedScreen: FC<FeedScreenProps> = React.memo(({ isActive }) => {
   useAppState(
     useCallback(() => {
       if (isActive && user?.userId && isFocused) {
-        fetchFeed(user.userId, true);
+        fetchFeed(user.userId);
       }
     }, [isActive, user?.userId, fetchFeed, isFocused]),
   );

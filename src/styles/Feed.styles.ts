@@ -131,4 +131,10 @@ export const feedStyles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
 });

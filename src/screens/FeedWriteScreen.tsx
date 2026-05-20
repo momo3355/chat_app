@@ -6,6 +6,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { MainStackParamList } from '../types/MainTypes';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { feedStyles as styles } from '../styles/Feed.styles';
 import { ImagePickerSheet } from '../components/ImagePickerSheet';
@@ -16,8 +18,8 @@ import { buildImageFiles } from '../utils/Utils';
 
 const SHEET_HEIGHT = Math.round(Dimensions.get('window').height * 0.55);
 
-const FeedWriteScreen: React.FC = () => {
-  const navigation = useNavigation();
+const FeedWriteScreenBase: React.FC = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
   const user = useLoginStore(state => state.user);
   const { createFeed, fetchFeed } = useFeedStore();
 
@@ -70,7 +72,7 @@ const FeedWriteScreen: React.FC = () => {
         imageUrls,
       });
       if (success) {
-        await fetchFeed(user.userId, true);
+        await fetchFeed(user.userId);
         navigation.goBack();
       } else {
         Alert.alert('오류', '게시글 등록에 실패했습니다.');
@@ -85,7 +87,7 @@ const FeedWriteScreen: React.FC = () => {
   return (
     <SafeAreaView style={styles.writeContainer} edges={['top', 'bottom']}>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.writeHeader}>
@@ -104,7 +106,7 @@ const FeedWriteScreen: React.FC = () => {
           </TouchableOpacity>
         </View>
 
-        <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled">
+        <ScrollView style={styles.scrollView} keyboardShouldPersistTaps="handled">
           <TextInput
             style={styles.textInput}
             placeholder="지금 어떤 생각을 하고 계신가요?"
@@ -150,4 +152,6 @@ const FeedWriteScreen: React.FC = () => {
   );
 };
 
+const FeedWriteScreen = React.memo(FeedWriteScreenBase);
+FeedWriteScreen.displayName = 'FeedWriteScreen';
 export default FeedWriteScreen;

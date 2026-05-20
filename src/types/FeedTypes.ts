@@ -21,7 +21,7 @@ export interface FeedState {
 }
 
 export interface FeedActions {
-  fetchFeed: (userId: string, reset?: boolean) => Promise<void>;
+  fetchFeed: (userId: string) => Promise<void>;
   loadMore: (userId: string) => Promise<void>;
   likeFeed: (feedId: string, userId: string) => Promise<void>;
   createFeed: (params: CreateFeedParams) => Promise<boolean>;
