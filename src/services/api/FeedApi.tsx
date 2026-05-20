@@ -45,7 +45,7 @@ export const createFeed = async (
 };
 
 export const toggleFeedLike = async (
-  feedId: string,
+  feedId: number,
   userId: string,
 ): Promise<{ success: boolean; errorMsg?: string }> => {
   try {

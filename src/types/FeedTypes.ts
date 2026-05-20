@@ -1,5 +1,5 @@
 export interface FeedItem {
-  feedId: string;
+  feedId: number;
   userId: string;
   userName: string;
   gender: string | null;
@@ -23,7 +23,7 @@ export interface FeedState {
 export interface FeedActions {
   fetchFeed: (userId: string) => Promise<void>;
   loadMore: (userId: string) => Promise<void>;
-  likeFeed: (feedId: string, userId: string) => Promise<void>;
+  likeFeed: (feedId: number, userId: string) => Promise<void>;
   createFeed: (params: CreateFeedParams) => Promise<boolean>;
   clearError: () => void;
 }

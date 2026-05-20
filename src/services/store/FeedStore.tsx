@@ -41,7 +41,7 @@ const useFeedStore = create<FeedStore>((set, get) => ({
     }
   },
 
-  likeFeed: async (feedId: string, userId: string) => {
+  likeFeed: async (feedId: number, userId: string) => {
     // optimistic update
     set(state => ({
       feedList: state.feedList.map(item =>

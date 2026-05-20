@@ -7,7 +7,7 @@ import { getProfileUrl, formatRelativeTime } from '../utils/Utils';
 
 interface Props {
   item: FeedItemType;
-  onLike: (feedId: string) => void;
+  onLike: (feedId: number) => void;
   onUserPress: (item: FeedItemType) => void;
 }
 

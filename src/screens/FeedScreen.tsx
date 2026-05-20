@@ -49,7 +49,7 @@ const FeedScreen: FC<FeedScreenProps> = React.memo(({ isActive }) => {
     if (user?.userId) loadMore(user.userId);
   }, [user?.userId, loadMore]);
 
-  const handleLike = useCallback((feedId: string) => {
+  const handleLike = useCallback((feedId: number) => {
     if (user?.userId) likeFeed(feedId, user.userId);
   }, [user?.userId, likeFeed]);
 
@@ -122,7 +122,7 @@ const FeedScreen: FC<FeedScreenProps> = React.memo(({ isActive }) => {
 
       <FlatList
         data={feedList}
-        keyExtractor={item => item.feedId}
+        keyExtractor={item => String(item.feedId)}
         renderItem={renderItem}
         onEndReached={handleLoadMore}
         onEndReachedThreshold={0.3}
