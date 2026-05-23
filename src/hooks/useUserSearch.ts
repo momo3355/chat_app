@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
 import { searchUsers } from '../services/UserInfoApi';
 import { UserSearchItem } from '../types/UserInfoTypes';
 
@@ -11,12 +10,6 @@ export const useUserSearch = (isActive?: boolean) => {
   const isLoadingRef = useRef(false);
   const searchGenRef = useRef(0);
   const [refreshKey, setRefreshKey] = useState(0);
-
-  useFocusEffect(
-    useCallback(() => {
-      setRefreshKey(k => k + 1);
-    }, [])
-  );
 
   const prevIsActiveRef = useRef<boolean | undefined>(undefined);
   useEffect(() => {

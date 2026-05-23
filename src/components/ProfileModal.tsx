@@ -20,6 +20,8 @@ const ProfileModal = React.memo(({ user, onClose, onCreateRoom }: Props) => {
     setImgRatio(null);
   }, [user?.userId]);
 
+  const accentColor = user?.gender === 'W' ? '#db2777' : '#3DBFA8';
+
   return (
     <Modal visible={user !== null} transparent animationType="fade" onRequestClose={onClose}>
       <TouchableOpacity style={styles.overlay} activeOpacity={1} onPress={onClose}>
@@ -40,7 +42,7 @@ const ProfileModal = React.memo(({ user, onClose, onCreateRoom }: Props) => {
               />
             ) : (
               <View style={styles.profileModalDefault}>
-                <Icon name="person" size={64} color="#7c3aed" />
+                <Icon name="person" size={64} color={accentColor} />
               </View>
             )}
           </View>
@@ -49,7 +51,7 @@ const ProfileModal = React.memo(({ user, onClose, onCreateRoom }: Props) => {
               <View style={styles.profileInfoSection}>
                 <View style={styles.profileInfoRow}>
                   <Text style={styles.profileInfoLabel}>이름</Text>
-                  <Text style={styles.profileInfoValue}>{user.userName}</Text>
+                  <Text style={[styles.profileInfoValue, { color: accentColor }]}>{user.userName}</Text>
                 </View>
                 <View style={styles.profileInfoRow}>
                   <Text style={styles.profileInfoLabel}>나이</Text>

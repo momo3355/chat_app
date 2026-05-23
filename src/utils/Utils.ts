@@ -35,9 +35,24 @@ export const getWebSocketUrl = () => {
   return WEBSOCKET_URL;
 };
 
-export const getProfileUrl = (sender?: string): string => {
+export const getProfileUrl = (sender?: string, ts?: number): string => {
   if (!sender) { return ''; }
-  return `${SERVER_BASE_URL}/uploads/profile/${sender}/${sender}_thumbnail.jpg`;
+  const base = `${SERVER_BASE_URL}/uploads/profile/${sender}/${sender}_thumbnail.jpg`;
+  return ts ? `${base}?t=${ts}` : base;
+};
+
+export const getFeedImageUrl = (path?: string): string => {
+  if (!path) { return ''; }
+  if (path.startsWith('http')) { return path; }
+  return `${SERVER_BASE_URL}${path}`;
+};
+
+export const getFeedThumbnailUrl = (imageUrl?: string): string => {
+  if (!imageUrl) { return ''; }
+  const lastDot = imageUrl.lastIndexOf('.');
+  if (lastDot === -1) { return getFeedImageUrl(imageUrl); }
+  const base = imageUrl.substring(0, lastDot);
+  return `${SERVER_BASE_URL}${base}_thumbnail.jpg`;
 };
 
 export const getThumbnailUrl = (imageInfo?: string, userId?: string): string => {

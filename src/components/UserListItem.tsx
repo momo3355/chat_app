@@ -14,6 +14,7 @@ const formatDistance = (km: number | null): string => {
 const UserListItem = React.memo(({ item }: { item: UserSearchItem }) => {
   const [imgFailed, setImgFailed] = useState(false);
   const profileUri = getProfileUrl(item.userId);
+  const accentColor = item.gender === 'W' ? '#db2777' : '#3DBFA8';
   const metaParts = [
     item.age ? `${item.age}세` : null,
     item.sido || null,
@@ -30,14 +31,17 @@ const UserListItem = React.memo(({ item }: { item: UserSearchItem }) => {
             onError={() => setImgFailed(true)}
           />
         ) : (
-          <View style={styles.userAvatarDefault}>
-            <Icon name="person" size={28} color="#7c3aed" />
+          <View style={[styles.userAvatarDefault, { backgroundColor: `${accentColor}20` }]}>
+            <Icon name="person" size={28} color={accentColor} />
           </View>
         )}
       </View>
       <View style={styles.userInfoContainer}>
-        <Text style={styles.userName}>{item.userName}</Text>
-        <Text style={styles.userMeta}>{metaParts}</Text>
+        <View style={styles.userNameRow}>
+          <Text style={[styles.userName, { color: accentColor }]}>{item.userName}</Text>
+          {metaParts ? <Text style={styles.userMeta}>{metaParts}</Text> : null}
+        </View>
+        {item.greetings ? <Text style={styles.userGreeting} numberOfLines={1}>{item.greetings}</Text> : null}
       </View>
     </View>
   );

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  View, Text, TouchableOpacity, StatusBar, Alert, ActivityIndicator, Platform,
+  View, Text, TouchableOpacity, StatusBar, Alert, ActivityIndicator, Platform, Linking,
 } from 'react-native';
 import WebView from 'react-native-webview';
 import Geolocation from '@react-native-community/geolocation';
@@ -95,8 +95,19 @@ const LocationPickerScreen: React.FC<Props> = ({ navigation }) => {
     let cancelled = false;
 
     (async () => {
-      const granted = await PermissionService.requestLocation();
-      if (!granted) {
+      const locationPermission = await PermissionService.requestLocation();
+      if (locationPermission === 'blocked') {
+        Alert.alert(
+          '위치 권한 필요',
+          '위치 권한이 거부되었습니다. 설정에서 위치 권한을 허용해주세요.',
+          [
+            { text: '취소', style: 'cancel', onPress: () => navigation.goBack() },
+            { text: '설정으로 이동', onPress: () => { Linking.openSettings(); navigation.goBack(); } },
+          ],
+        );
+        return;
+      }
+      if (locationPermission === 'denied') {
         Alert.alert('권한 필요', '위치 권한이 필요합니다.', [
           { text: '확인', onPress: () => navigation.goBack() },
         ]);

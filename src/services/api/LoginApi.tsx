@@ -1,4 +1,5 @@
 import apiClient from '../AxiosClient';
+import RNFS from 'react-native-fs';
 
 import { LoginFormData, AuthResponse, ServerAuthResponse, TokenUpdateRequest, TokenUpdateResponse } from '../../types/LoginTypes';
 
@@ -24,6 +25,7 @@ export const authLogin = async (params: LoginFormData): Promise<AuthResponse> =>
                     gender: serverResponse.user.gender ?? null,
                     age: serverResponse.user.age ?? null,
                     area: serverResponse.user.area ?? null,
+                    greetings: serverResponse.user.greetings ?? null,
                 },
             };
         } else {
@@ -41,6 +43,24 @@ export const authLogin = async (params: LoginFormData): Promise<AuthResponse> =>
     }
 };
 
+
+export const profilePhotoUpload = async (userId: string, uri: string, name: string): Promise<boolean> => {
+  const filepath = uri.startsWith('content://')
+    ? `${RNFS.CachesDirectoryPath}/${name}`
+    : uri.startsWith('file://') ? uri.slice(7) : uri;
+  if (uri.startsWith('content://')) {
+    await RNFS.copyFile(uri, filepath);
+  }
+  const base64Data = await RNFS.readFile(filepath, 'base64');
+  const ext = name.split('.').pop()?.toLowerCase() ?? 'jpg';
+  const type = ext === 'png' ? 'image/png' : 'image/jpeg';
+  const res = await apiClient.post('/auth/profileFileUpload', {
+    userId,
+    files: [{ name, type, data: base64Data }],
+  });
+  const data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
+  return data.success === true;
+};
 
 // 🔥 토큰 업데이트 API
 export const tokenUpdate = async (params: TokenUpdateRequest): Promise<TokenUpdateResponse> => {

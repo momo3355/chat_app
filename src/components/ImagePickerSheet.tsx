@@ -12,6 +12,7 @@ interface ImagePickerSheetProps {
   selectedUris: string[];
   onSelectionChange: (uris: string[]) => void;
   onClose: () => void;
+  maxSelection?: number;
 }
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
@@ -31,6 +32,7 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
   selectedUris,
   onSelectionChange,
   onClose,
+  maxSelection = 4,
 }) => {
   const [photos, setPhotos] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -139,19 +141,17 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
     }
   }, [hasMore, loadingMore, loading, cursor, loadPhotos]);
 
-  const MAX_SELECTION = 4;
-
   const toggleSelection = useCallback((uri: string) => {
     if (selectedUris.includes(uri)) {
       onSelectionChange(selectedUris.filter(u => u !== uri));
     } else {
-      if (selectedUris.length >= MAX_SELECTION) {
-        Alert.alert('선택 제한', `사진은 최대 ${MAX_SELECTION}장까지 선택할 수 있습니다.`);
+      if (selectedUris.length >= maxSelection) {
+        Alert.alert('선택 제한', `사진은 최대 ${maxSelection}장까지 선택할 수 있습니다.`);
         return;
       }
       onSelectionChange([...selectedUris, uri]);
     }
-  }, [selectedUris, onSelectionChange]);
+  }, [selectedUris, onSelectionChange, maxSelection]);
 
   const renderItem = useCallback(({ item }: { item: string }) => {
     const size = getPhotoSize(columns);
@@ -181,7 +181,7 @@ export const ImagePickerSheet: React.FC<ImagePickerSheetProps> = ({
 
       <View style={sheetStyles.header}>
         <Text style={sheetStyles.headerTitle}>
-          {selectedUris.length > 0 ? `${selectedUris.length} / ${MAX_SELECTION}장 선택됨` : '사진 선택 (최대 4장)'}
+          {selectedUris.length > 0 ? `${selectedUris.length} / ${maxSelection}장 선택됨` : `사진 선택 (최대 ${maxSelection}장)`}
         </Text>
         {/* 현재 열 수 표시 (줌 레벨) */}
         <View style={sheetStyles.zoomIndicator}>

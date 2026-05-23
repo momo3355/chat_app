@@ -1,10 +1,42 @@
 import { StyleSheet } from 'react-native';
 
+const P = '#7c3aed';
+
 export const feedStyles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: '#F5F5F5',
   },
+
+  // ALL/MY 토글 (FeedScreen 전용)
+  ownerToggle: {
+    flexDirection: 'row',
+    borderRadius: 8,
+    borderWidth: 1.5,
+    borderColor: '#ddd',
+    overflow: 'hidden',
+  },
+  ownerBtn: {
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    backgroundColor: '#fafafa',
+  },
+  ownerBtnRight: {
+    borderLeftWidth: 1,
+    borderLeftColor: '#ddd',
+  },
+  ownerBtnActive: {
+    backgroundColor: P,
+  },
+  ownerBtnText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#888',
+  },
+  ownerBtnTextActive: {
+    color: '#fff',
+  },
+
   header: {
     paddingHorizontal: 16,
     paddingVertical: 12,
@@ -110,6 +142,7 @@ export const feedStyles = StyleSheet.create({
     flexWrap: 'wrap',
     gap: 8,
     paddingHorizontal: 16,
+    paddingTop: 16,
     paddingBottom: 12,
   },
   thumbWrapper: {

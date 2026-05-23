@@ -5,6 +5,7 @@ export interface UpdateLocationParams {
   lon: number;
   sido: string;
   dong: string;
+  area?: number | null;
 }
 
 export interface UpdateLocationResult {

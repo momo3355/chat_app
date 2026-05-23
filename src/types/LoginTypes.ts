@@ -25,6 +25,8 @@ export interface User {
   gender?: string | null;  // 'M' | 'W'
   age?: number | null;
   area?: number | null;     // 1=서울 ~ 17=제주
+  greetings?: string | null;
+  profileTs?: number;
 }
 
 
@@ -44,6 +46,7 @@ export interface ServerAuthResponse {
     gender?: string;
     age?: number;
     area?: number;
+    greetings?: string | null;
   };
   token?: string;
 }
@@ -61,6 +64,7 @@ export interface LoginActions {
   login: (formData: LoginFormData) => Promise<boolean>;
   logout: () => void;
   clearError: () => void;
+  updateUser: (partial: Partial<User>) => void;
 }
 
 

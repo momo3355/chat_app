@@ -30,15 +30,16 @@ export const chatRoomList = async (params: ChatRoomFormData): Promise<ChatRoomPo
         const res = await apiClient.post("/chat/chatRoomList", params);
 
         const rawList = res.data.roomList || res.data || [];
-        // [roomId, userId, roomName, senderUserId, sendUserName, unreadCount, lastMessage, lastType, cretDate]
+        // [roomId, userId, roomName, senderUserId, sendUserName, gender, unreadCount, lastMessage, lastType, cretDate]
         const roomList: ChatRoomPostsValue[] = rawList.map((item: any[]) => ({
             roomId: item[0],
             otherUserId: item[3],
             roomName: item[4],
-            unreadCount: item[5],
-            lastMessage: item[6],
-            lastType: item[7],
-            lastMessageTime: toDateString(item[8]),
+            gender: item[5] ?? null,
+            unreadCount: item[6],
+            lastMessage: item[7],
+            lastType: item[8],
+            lastMessageTime: toDateString(item[9]),
         }));
 
         return {

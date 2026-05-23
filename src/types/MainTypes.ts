@@ -9,5 +9,6 @@ export type CustomHeaderProps = {
 export type MainStackParamList = {
   Main: undefined;
   ChatScreen: { userId: string; userName: string; roomId: string; roomName: string; token: string };
-  FeedWriteScreen: undefined;
+  FeedWriteScreen: { editFeedId?: number; initialContent?: string; initialImages?: string[] };
+  ProfileEditScreen: undefined;
 };

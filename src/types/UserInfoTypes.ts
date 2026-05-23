@@ -7,6 +7,7 @@ export interface UserSearchItem {
   sido: string | null;
   dong: string | null;
   distance: number | null;
+  greetings: string | null;
 }
 
 export interface UserSearchResponse {

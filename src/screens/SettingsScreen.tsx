@@ -14,6 +14,14 @@ const SettingsScreen: React.FC = () => {
       <View style={styles.section}>
         <TouchableOpacity
           style={styles.menuItem}
+          onPress={() => navigation.navigate('ProfileEditScreen')}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.menuText}>내 프로필</Text>
+          <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.menuItem, { borderTopWidth: 1, borderTopColor: '#E0E0E0' }]}
           onPress={() => navigation.navigate('LocationMapScreen', { mode: 'update' })}
           activeOpacity={0.7}
         >

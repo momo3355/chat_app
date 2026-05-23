@@ -6,7 +6,9 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import useChatStore from '../services/store/ChatStore';
@@ -46,7 +48,8 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
   const navigation = useNavigation<NavigationProp>();
   const { user } = useLoginStore();
   const { token } = useFCMStore();
-  const { roomList, isLoading, errorMsg, fetchRoomList, resetUnreadCount } = useChatStore();
+  const { roomList, isLoading, errorMsg, fetchRoomList, resetUnreadCount, chatRoomOut } = useChatStore();
+  const [likedRoomIds, setLikedRoomIds] = useState<Set<string>>(new Set());
   const isFocused = useIsFocused();
 
   useFocusEffect(useCallback(() => {
@@ -83,6 +86,28 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
     }
   };
 
+  const handleLike = useCallback((roomId: string) => {
+    setLikedRoomIds(prev => {
+      const next = new Set(prev);
+      next.has(roomId) ? next.delete(roomId) : next.add(roomId);
+      return next;
+    });
+  }, []);
+
+  const handleLeave = useCallback((roomId: string, roomName: string) => {
+    Alert.alert('대화방 나가기', `'${roomName}' 대화방을 나가시겠습니까?`, [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '나가기',
+        style: 'destructive',
+        onPress: async () => {
+          await chatRoomOut(user?.userId ?? '', roomId);
+          if (user?.userId) fetchRoomList({ userId: user.userId });
+        },
+      },
+    ]);
+  }, [chatRoomOut, fetchRoomList, user?.userId]);
+
   const renderRoomItem = ({ item }: { item: ChatRoomPostsValue }) => (
     <TouchableOpacity
       style={styles.roomItem}
@@ -101,24 +126,38 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
       <RoomIcon userId={item.otherUserId} name={item.roomName} />
       <View style={styles.roomInfo}>
         <View style={styles.roomHeader}>
-          <Text style={styles.roomName} numberOfLines={1}>
-            {item.roomName ?? '이름 없음'}
-          </Text>
-          <Text style={styles.roomDate}>
-            {formatDate(item.lastMessageTime)}
-          </Text>
+          <View style={styles.roomNameRow}>
+            <Text style={[styles.roomName, { color: item.gender === 'W' ? '#db2777' : '#3DBFA8' }]} numberOfLines={1}>
+              {item.roomName ?? '이름 없음'}
+            </Text>
+            <View style={styles.unreadBadge}>
+              <Text style={styles.unreadBadgeText}>5</Text>
+            </View>
+          </View>
+          <Text style={styles.roomDate}>{formatDate(item.lastMessageTime)}</Text>
         </View>
         <View style={styles.messageRow}>
           <Text style={styles.lastMessage} numberOfLines={1}>
             {item.lastType === 'IMAGE' ? '이미지를 보냈습니다.' : (item.lastMessage ?? '메시지가 없습니다')}
           </Text>
-          {(item.unreadCount ?? 0) > 0 && (
-            <View style={styles.unreadBadge}>
-              <Text style={styles.unreadBadgeText}>
-                {(item.unreadCount ?? 0) > 99 ? '99+' : item.unreadCount}
-              </Text>
-            </View>
-          )}
+          <View style={styles.roomActions}>
+            <TouchableOpacity
+              onPress={() => handleLike(item.roomId ?? '')}
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            >
+              <Icon
+                name={likedRoomIds.has(item.roomId ?? '') ? 'favorite' : 'favorite-border'}
+                size={20}
+                color={likedRoomIds.has(item.roomId ?? '') ? '#e11d48' : '#ccc'}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => handleLeave(item.roomId ?? '', item.roomName ?? '')}
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            >
+              <Icon name="delete" size={20} color="#ccc" />
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -127,7 +166,7 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#6B4EFF" />
+        <ActivityIndicator size="large" color="#7c3aed" />
       </View>
     );
   }

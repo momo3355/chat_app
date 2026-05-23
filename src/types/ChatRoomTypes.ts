@@ -8,6 +8,7 @@ export interface ChatRoomPostsValue{
   roomId: string;
   roomName: string;
   otherUserId?: string;
+  gender?: string | null;
   lastMessage?: string;
   lastMessageTime?: string;
   unreadCount?: number;

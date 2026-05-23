@@ -5,7 +5,7 @@ import {
   KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../types/MainTypes';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -14,20 +14,27 @@ import { ImagePickerSheet } from '../components/ImagePickerSheet';
 import { feedFileUpload } from '../services/api/FeedApi';
 import useFeedStore from '../services/store/FeedStore';
 import useLoginStore from '../services/store/LoginStore';
-import { buildImageFiles } from '../utils/Utils';
+import { buildImageFiles, getFeedImageUrl } from '../utils/Utils';
 
 const SHEET_HEIGHT = Math.round(Dimensions.get('window').height * 0.55);
 
 const FeedWriteScreenBase: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<MainStackParamList>>();
+  const route = useRoute<RouteProp<MainStackParamList, 'FeedWriteScreen'>>();
   const user = useLoginStore(state => state.user);
-  const { createFeed, fetchFeed } = useFeedStore();
+  const { createFeed, updateFeed, fetchFeed } = useFeedStore();
 
-  const [content, setContent] = useState('');
-  const [selectedUris, setSelectedUris] = useState<string[]>([]);
+  const editFeedId = route.params?.editFeedId;
+  const isEditMode = !!editFeedId;
+
+  const [content, setContent] = useState(route.params?.initialContent ?? '');
+  const [existingImages, setExistingImages] = useState<string[]>(route.params?.initialImages ?? []);
+  const [newLocalUris, setNewLocalUris] = useState<string[]>([]);
   const [isPickerVisible, setIsPickerVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const pickerHeightAnim = useRef(new Animated.Value(0)).current;
+
+  const totalImageCount = existingImages.length + newLocalUris.length;
 
   const openPicker = useCallback(() => {
     pickerHeightAnim.setValue(0);
@@ -48,41 +55,62 @@ const FeedWriteScreenBase: React.FC = () => {
     }).start(() => setIsPickerVisible(false));
   }, [pickerHeightAnim]);
 
-  const removeImage = useCallback((uri: string) => {
-    setSelectedUris(prev => prev.filter(u => u !== uri));
+  const removeExistingImage = useCallback((url: string) => {
+    setExistingImages(prev => prev.filter(u => u !== url));
+  }, []);
+
+  const removeNewImage = useCallback((uri: string) => {
+    setNewLocalUris(prev => prev.filter(u => u !== uri));
   }, []);
 
   const handleSubmit = useCallback(async () => {
-    if (!user || (!content.trim() && selectedUris.length === 0)) return;
+    if (!user || (!content.trim() && totalImageCount === 0)) return;
     setIsUploading(true);
     try {
-      let imageUrls: string[] = [];
-      if (selectedUris.length > 0) {
-        const imageFiles = buildImageFiles(selectedUris);
+      let newImageUrls: string[] = [];
+      if (newLocalUris.length > 0) {
+        const imageFiles = buildImageFiles(newLocalUris);
         const uploadRes = await feedFileUpload(user.userId, imageFiles);
         if (!uploadRes.success) {
           Alert.alert('오류', uploadRes.errorMsg || '이미지 업로드에 실패했습니다.');
           return;
         }
-        imageUrls = uploadRes.imageUrls;
+        newImageUrls = uploadRes.imageUrls;
       }
-      const success = await createFeed({
-        userId: user.userId,
-        content: content.trim(),
-        imageUrls,
-      });
-      if (success) {
-        await fetchFeed(user.userId);
-        navigation.goBack();
+
+      if (isEditMode) {
+        const finalImageUrls = [...existingImages, ...newImageUrls];
+        const success = await updateFeed({
+          feedId: editFeedId!,
+          userId: user.userId,
+          content: content.trim(),
+          imageUrls: finalImageUrls,
+        });
+        if (success) {
+          await fetchFeed(user.userId);
+          navigation.goBack();
+        } else {
+          Alert.alert('오류', '게시글 수정에 실패했습니다.');
+        }
       } else {
-        Alert.alert('오류', '게시글 등록에 실패했습니다.');
+        const success = await createFeed({
+          userId: user.userId,
+          content: content.trim(),
+          imageUrls: newImageUrls,
+        });
+        if (success) {
+          await fetchFeed(user.userId);
+          navigation.goBack();
+        } else {
+          Alert.alert('오류', '게시글 등록에 실패했습니다.');
+        }
       }
     } finally {
       setIsUploading(false);
     }
-  }, [user, content, selectedUris, createFeed, fetchFeed, navigation]);
+  }, [user, content, existingImages, newLocalUris, isEditMode, editFeedId, createFeed, updateFeed, fetchFeed, navigation, totalImageCount]);
 
-  const canSubmit = (content.trim().length > 0 || selectedUris.length > 0) && !isUploading;
+  const canSubmit = (content.trim().length > 0 || totalImageCount > 0) && !isUploading;
 
   return (
     <SafeAreaView style={styles.writeContainer} edges={['top', 'bottom']}>
@@ -94,19 +122,46 @@ const FeedWriteScreenBase: React.FC = () => {
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Text style={styles.writeCancel}>취소</Text>
           </TouchableOpacity>
-          <Text style={styles.writeTitle}>소식 쓰기</Text>
+          <Text style={styles.writeTitle}>{isEditMode ? '소식 수정' : '소식 쓰기'}</Text>
           <TouchableOpacity onPress={handleSubmit} disabled={!canSubmit}>
             {isUploading ? (
               <ActivityIndicator size="small" color="#7c3aed" />
             ) : (
               <Text style={[styles.writeSubmit, !canSubmit && styles.writeSubmitDisabled]}>
-                등록
+                {isEditMode ? '저장' : '등록'}
               </Text>
             )}
           </TouchableOpacity>
         </View>
 
         <ScrollView style={styles.scrollView} keyboardShouldPersistTaps="handled">
+          {(existingImages.length > 0 || newLocalUris.length > 0) && (
+            <View style={styles.selectedImagesRow}>
+              {existingImages.map(url => (
+                <View key={url} style={styles.thumbWrapper}>
+                  <Image source={{ uri: getFeedImageUrl(url) }} style={styles.selectedThumb} />
+                  <TouchableOpacity
+                    style={styles.removeThumbBtn}
+                    onPress={() => removeExistingImage(url)}
+                  >
+                    <Icon name="close" size={12} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              {newLocalUris.map(uri => (
+                <View key={uri} style={styles.thumbWrapper}>
+                  <Image source={{ uri }} style={styles.selectedThumb} />
+                  <TouchableOpacity
+                    style={styles.removeThumbBtn}
+                    onPress={() => removeNewImage(uri)}
+                  >
+                    <Icon name="close" size={12} color="#fff" />
+                  </TouchableOpacity>
+                </View>
+              ))}
+            </View>
+          )}
+
           <TextInput
             style={styles.textInput}
             placeholder="지금 어떤 생각을 하고 계신가요?"
@@ -115,36 +170,20 @@ const FeedWriteScreenBase: React.FC = () => {
             value={content}
             onChangeText={setContent}
           />
-
-          {selectedUris.length > 0 && (
-            <View style={styles.selectedImagesRow}>
-              {selectedUris.map(uri => (
-                <View key={uri} style={styles.thumbWrapper}>
-                  <Image source={{ uri }} style={styles.selectedThumb} />
-                  <TouchableOpacity
-                    style={styles.removeThumbBtn}
-                    onPress={() => removeImage(uri)}
-                  >
-                    <Icon name="close" size={12} color="#fff" />
-                  </TouchableOpacity>
-                </View>
-              ))}
-            </View>
-          )}
         </ScrollView>
 
         <View style={styles.writeFooter}>
           <TouchableOpacity style={styles.photoBtn} onPress={openPicker}>
             <Icon name="photo-library" size={22} color="#7c3aed" />
-            <Text style={styles.photoBtnText}>사진 ({selectedUris.length}/4)</Text>
+            <Text style={styles.photoBtnText}>사진 ({totalImageCount}/4)</Text>
           </TouchableOpacity>
         </View>
 
         <ImagePickerSheet
           heightAnim={pickerHeightAnim}
           isVisible={isPickerVisible}
-          selectedUris={selectedUris}
-          onSelectionChange={setSelectedUris}
+          selectedUris={newLocalUris}
+          onSelectionChange={setNewLocalUris}
           onClose={closePicker}
         />
       </KeyboardAvoidingView>

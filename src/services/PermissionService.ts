@@ -54,10 +54,10 @@ class PermissionService {
     return true;
   }
 
-  // 위치 권한 요청
-  async requestLocation(): Promise<boolean> {
+  // 위치 권한 요청 — 'granted' | 'denied' | 'blocked' 반환
+  async requestLocation(): Promise<'granted' | 'denied' | 'blocked'> {
     if (Platform.OS === 'android') {
-      const granted = await PermissionsAndroid.request(
+      const result = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
         {
           title: '위치 권한 요청',
@@ -66,9 +66,11 @@ class PermissionService {
           buttonNegative: '거부',
         },
       );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
+      if (result === PermissionsAndroid.RESULTS.GRANTED) return 'granted';
+      if (result === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) return 'blocked';
+      return 'denied';
     }
-    return true;
+    return 'granted'; // iOS는 Geolocation.requestAuthorization()이 처리
   }
 }
 

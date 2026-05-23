@@ -10,6 +10,9 @@ import PermissionService from '../services/PermissionService';
 import { signUp, uploadProfileImage } from '../services/api/SignUpApi';
 import { updateLocation } from '../services/api/LocationApi';
 import { styles, Colors } from '../styles/LocationMap.styles';
+import useLoginStore from '../services/store/LoginStore';
+import { getMyProfile } from '../services/UserInfoApi';
+import { matchRegionFromSido } from '../utils/Utils';
 
 // Kakao JavaScript API 키 — https://developers.kakao.com 에서 발급 후 교체
 const KAKAO_APP_KEY = '752b26862746e70fa4be2f91d7f79b18';
@@ -62,6 +65,7 @@ const createMapHtml = (lat: number, lng: number): string => `
           window.ReactNativeWebView.postMessage(JSON.stringify({
             type: 'address',
             sido: city,
+            province: province,
             address: r.region_3depth_name
           }));
         }
@@ -110,11 +114,14 @@ interface Coords { latitude: number; longitude: number; }
 
 const LocationMapScreen: React.FC<Props> = ({ navigation, route }) => {
   const insets = useSafeAreaInsets();
+  const updateUser = useLoginStore(state => state.updateUser);
   const webViewRef = useRef<WebView>(null);
   const [coords, setCoords] = useState<Coords | null>(null);
   const [address, setAddress] = useState<string>('주소를 확인하는 중...');
   const [sido, setSido] = useState<string>('');
+  const [province, setProvince] = useState<string>('');
   const [isLoadingGps, setIsLoadingGps] = useState(true);
+  const [isAddressReady, setIsAddressReady] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -181,6 +188,8 @@ const LocationMapScreen: React.FC<Props> = ({ navigation, route }) => {
       } else if (data.type === 'address') {
         setAddress(data.address);
         setSido(data.sido ?? '');
+        setProvince(data.province ?? data.sido ?? '');
+        setIsAddressReady(true);
       }
     } catch { /* non-JSON 메시지 무시 */ }
   };
@@ -211,8 +220,14 @@ const LocationMapScreen: React.FC<Props> = ({ navigation, route }) => {
           Alert.alert('오류', result.errorMsg || '회원가입에 실패했습니다.');
         }
       } else {
-        const result = await updateLocation({ lat: latitude, lon: longitude, sido, dong: address });
+        const area = matchRegionFromSido(province || sido);
+        const result = await updateLocation({ lat: latitude, lon: longitude, sido, dong: address, area });
         if (result.success) {
+          if (area != null) updateUser({ area });
+          // 서버에서 최신 area 값 확인 후 스토어 갱신
+          getMyProfile().then(profile => {
+            if (profile.area != null) updateUser({ area: profile.area });
+          }).catch(() => {});
           Alert.alert('완료', '위치가 갱신되었습니다.', [
             { text: '확인', onPress: () => navigation.goBack() },
           ]);
@@ -273,10 +288,10 @@ const LocationMapScreen: React.FC<Props> = ({ navigation, route }) => {
         <TouchableOpacity
           style={[
             styles.confirmButton,
-            (!coords || isSubmitting) && styles.confirmButtonDisabled,
+            (!coords || !isAddressReady || isSubmitting) && styles.confirmButtonDisabled,
           ]}
           onPress={handleConfirm}
-          disabled={!coords || isSubmitting}
+          disabled={!coords || !isAddressReady || isSubmitting}
           activeOpacity={0.8}
         >
           {isSubmitting

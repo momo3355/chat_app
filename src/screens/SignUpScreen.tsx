@@ -463,6 +463,7 @@ const SignUpScreen: React.FC<Props> = ({ navigation, route }) => {
           selectedUris={selectedImages}
           onSelectionChange={handleProfileSelection}
           onClose={closePicker}
+          maxSelection={1}
         />
       </View>
 

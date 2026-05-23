@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Modal, FlatList } from 'react-native';
-import { homeStyles as styles } from '../styles/Home.styles';
+import { filterBarStyles as styles } from '../styles/FilterBar.styles';
 import { AGES } from '../utils/Utils';
 
 const AGE_ITEM_HEIGHT = 44;
@@ -13,13 +13,15 @@ interface Props {
   setTempAgeTo: (v: number) => void;
   onConfirm: () => void;
   onClose: () => void;
+  onReset?: () => void;
+  ages?: number[];
 }
 
 const AgeRangeModal = React.memo(({
-  visible, tempAgeFrom, tempAgeTo, setTempAgeFrom, setTempAgeTo, onConfirm, onClose,
+  visible, tempAgeFrom, tempAgeTo, setTempAgeFrom, setTempAgeTo, onConfirm, onClose, onReset, ages = AGES,
 }: Props) => {
-  const fromIndex = Math.max(0, AGES.indexOf(tempAgeFrom));
-  const toIndex = Math.max(0, AGES.indexOf(tempAgeTo));
+  const fromIndex = Math.max(0, ages.indexOf(tempAgeFrom));
+  const toIndex = Math.max(0, ages.indexOf(tempAgeTo));
 
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
@@ -28,7 +30,7 @@ const AgeRangeModal = React.memo(({
           <Text style={styles.modalTitle}>나이 선택</Text>
           <View style={styles.agePickerRow}>
             <FlatList
-              data={AGES}
+              data={ages}
               keyExtractor={item => `from-${item}`}
               style={styles.agePicker}
               showsVerticalScrollIndicator={false}
@@ -47,7 +49,7 @@ const AgeRangeModal = React.memo(({
             />
             <Text style={styles.ageSeparator}>~</Text>
             <FlatList
-              data={AGES}
+              data={ages}
               keyExtractor={item => `to-${item}`}
               style={styles.agePicker}
               showsVerticalScrollIndicator={false}
@@ -65,9 +67,16 @@ const AgeRangeModal = React.memo(({
               )}
             />
           </View>
-          <TouchableOpacity style={styles.confirmBtn} onPress={onConfirm}>
-            <Text style={styles.confirmBtnText}>확인</Text>
-          </TouchableOpacity>
+          <View style={styles.ageBtnRow}>
+            {onReset && (
+              <TouchableOpacity style={styles.resetBtn} onPress={onReset}>
+                <Text style={styles.resetBtnText}>전체</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity style={styles.confirmBtn} onPress={onConfirm}>
+              <Text style={styles.confirmBtnText}>확인</Text>
+            </TouchableOpacity>
+          </View>
         </TouchableOpacity>
       </TouchableOpacity>
     </Modal>

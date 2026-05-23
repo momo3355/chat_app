@@ -1,36 +1,35 @@
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-const SCREEN_WIDTH = Dimensions.get('window').width;
 const CARD_H_PADDING = 14;
 const CARD_H_MARGIN = 12;
-const IMAGE_GAP = 4;
 
 export const feedItemStyles = StyleSheet.create({
   card: {
-    backgroundColor: '#fff',
+    backgroundColor: '#fffbfe',
     marginHorizontal: CARD_H_MARGIN,
     marginVertical: 6,
-    borderRadius: 12,
+    borderRadius: 16,
     padding: CARD_H_PADDING,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
+    borderWidth: 1,
+    shadowColor: '#00000020',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
     elevation: 2,
   },
-  header: {
+  topRow: {
     flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
+    alignItems: 'flex-start',
   },
   avatar: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#e8e0f5',
+    backgroundColor: '#fdf2f8',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
+    overflow: 'hidden',
   },
   avatarImage: {
     width: 40,
@@ -40,37 +39,58 @@ export const feedItemStyles = StyleSheet.create({
   headerInfo: {
     flex: 1,
   },
+  nameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
   userName: {
     fontSize: 14,
     fontWeight: '700',
     color: '#333',
   },
-  timeText: {
+  metaText: {
     fontSize: 12,
     color: '#999',
-    marginTop: 1,
+  },
+  timeText: {
+    fontSize: 12,
+    color: '#bbb',
+    marginTop: 2,
+  },
+  imageThumbnailWrap: {
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  imageThumbnail: {
+    width: 90,
+    height: 90,
+    borderRadius: 10,
+  },
+  imageCountBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    borderRadius: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    gap: 3,
+  },
+  imageCountText: {
+    color: '#fff',
+    fontSize: 11,
+    fontWeight: '600',
   },
   content: {
     fontSize: 14,
-    color: '#333',
+    color: '#444',
     lineHeight: 20,
-    marginBottom: 10,
-  },
-  imageGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: IMAGE_GAP,
-    marginBottom: 10,
-  },
-  imageSingle: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-  },
-  imageMulti: {
-    width: (SCREEN_WIDTH - CARD_H_MARGIN * 2 - CARD_H_PADDING * 2 - IMAGE_GAP) / 2,
-    height: 120,
-    borderRadius: 6,
+    marginTop: 16,
+    marginBottom: 8,
+    marginLeft: -50,
+    marginRight: 8,
   },
   footer: {
     flexDirection: 'row',
@@ -78,8 +98,23 @@ export const feedItemStyles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: 4,
     borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
+    borderTopColor: '#eeeeee',
     paddingTop: 10,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  viewBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingVertical: 4,
+  },
+  viewCount: {
+    fontSize: 13,
+    color: '#bbb',
   },
   likeBtn: {
     flexDirection: 'row',
@@ -90,10 +125,9 @@ export const feedItemStyles = StyleSheet.create({
   },
   likeCount: {
     fontSize: 13,
-    color: '#666',
+    color: '#888',
   },
   chatBtn: {
-    backgroundColor: '#7c3aed',
     paddingHorizontal: 16,
     paddingVertical: 6,
     borderRadius: 20,
@@ -102,5 +136,30 @@ export const feedItemStyles = StyleSheet.create({
     color: '#fff',
     fontSize: 13,
     fontWeight: '600',
+  },
+  ownBtns: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  editBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  editBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  deleteBtn: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    backgroundColor: '#f3f4f6',
+  },
+  deleteBtnText: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#888',
   },
 });

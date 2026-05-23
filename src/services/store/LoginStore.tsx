@@ -69,6 +69,13 @@ const useLoginStore = create<LoginStore>()(
       clearError: () => {
         set({ errorMsg: null });
       },
+
+      // 유저 정보 부분 업데이트
+      updateUser: (partial) => {
+        set(state => ({
+          user: state.user ? { ...state.user, ...partial } : state.user,
+        }));
+      },
     }),
     {
       name: 'login-storage', // AsyncStorage에 저장될 키 이름

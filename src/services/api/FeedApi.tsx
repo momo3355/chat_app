@@ -1,6 +1,6 @@
 import apiClient from '../AxiosClient';
 import RNFS from 'react-native-fs';
-import { FeedListResponse, FeedUploadResponse, CreateFeedParams } from '../../types/FeedTypes';
+import { FeedListResponse, FeedUploadResponse, CreateFeedParams, UpdateFeedParams, FeedFilter } from '../../types/FeedTypes';
 
 export interface LocalImageFile {
   uri: string;
@@ -12,9 +12,16 @@ export const getFeedList = async (
   userId: string,
   page: number,
   size: number = 20,
+  filter?: FeedFilter,
 ): Promise<FeedListResponse> => {
   try {
-    const res = await apiClient.get(`/feed/list?userId=${userId}&page=${page}&size=${size}`);
+    const params = new URLSearchParams({ userId, page: String(page), size: String(size) });
+    if (filter?.owner === 'MY') params.append('owner', 'MY');
+    if (filter?.area != null) params.append('area', String(filter.area));
+    if (filter?.gender != null) params.append('gender', filter.gender);
+    if (filter?.ageFrom != null) params.append('ageFrom', String(filter.ageFrom));
+    if (filter?.ageTo != null) params.append('ageTo', String(filter.ageTo));
+    const res = await apiClient.get(`/feed/list?${params.toString()}`);
     return {
       success: true,
       feedList: res.data.feedList ?? [],
@@ -50,6 +57,44 @@ export const toggleFeedLike = async (
 ): Promise<{ success: boolean; errorMsg?: string }> => {
   try {
     await apiClient.post('/feed/like', { feedId, userId });
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      errorMsg: error.response?.data?.message || '네트워크 오류가 발생했습니다.',
+    };
+  }
+};
+
+export const incrementFeedView = async (
+  feedId: number,
+  userId: string,
+): Promise<void> => {
+  try {
+    await apiClient.post('/feed/view', { feedId, userId });
+  } catch (_) {}
+};
+
+export const deleteFeed = async (
+  feedId: number,
+  userId: string,
+): Promise<{ success: boolean; errorMsg?: string }> => {
+  try {
+    await apiClient.post('/feed/delete', { feedId, userId });
+    return { success: true };
+  } catch (error: any) {
+    return {
+      success: false,
+      errorMsg: error.response?.data?.message || '네트워크 오류가 발생했습니다.',
+    };
+  }
+};
+
+export const updateFeed = async (
+  params: UpdateFeedParams,
+): Promise<{ success: boolean; errorMsg?: string }> => {
+  try {
+    await apiClient.post('/feed/update', params);
     return { success: true };
   } catch (error: any) {
     return {
