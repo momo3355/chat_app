@@ -59,13 +59,16 @@ export const styles = StyleSheet.create({
     fontSize: 24,
     color: Colors.primaryText,
   },
+  headerTitleContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+  },
   headerTitle: {
-    flex: 1,
     fontSize: 18,
     fontWeight: 'bold',
     color: Colors.primaryText,
-    textAlign: 'center',
-    marginRight: 40,
   },
 
   // ===================
@@ -321,6 +324,13 @@ export const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
   },
+});
+
+export const viewerStyles = StyleSheet.create({
+  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.95)', justifyContent: 'center' },
+  closeBtn: { position: 'absolute', top: 16, right: 16, zIndex: 10, padding: 8 },
+  imageArea: { flex: 1, justifyContent: 'center' },
+  image: { width: '100%', height: '100%' },
 });
 
 export const uploadOverlayStyles = StyleSheet.create({

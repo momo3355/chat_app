@@ -40,6 +40,7 @@ export const chatRoomList = async (params: ChatRoomFormData): Promise<ChatRoomPo
             lastMessage: item[7],
             lastType: item[8],
             lastMessageTime: toDateString(item[9]),
+            favoriteYn: item[10] ?? 'N',
         }));
 
         return {
@@ -73,12 +74,52 @@ export const chatRoomCreate = async (params: ChatRoomCreateParams): Promise<{ ro
   return res.data;
 };
 
+export const chatRoomFavorite = async (userId: string, roomId: string): Promise<string> => {
+    try {
+        const res = await apiClient.post('/chat/favorite', { userId, roomId });
+        return res.data?.favoriteYn ?? 'N';
+    } catch (error) {
+        console.error('❌ chatRoomFavorite API 오류:', error);
+        return 'N';
+    }
+};
+
 export const chatRoomOut = async (userId: string, roomId: string): Promise<boolean> => {
     try {
         const res = await apiClient.post('/chat/out', { userId, roomId });
         return res.data?.success === true;
     } catch (error) {
         console.error('❌ chatRoomOut API 오류:', error);
+        return false;
+    }
+};
+
+export const chatRoomOutFromList = async (userId: string, roomId: string, userName: string): Promise<boolean> => {
+    try {
+        const res = await apiClient.post('/chat/outFromList', { userId, roomId, userName });
+        return res.data?.success === true;
+    } catch (error) {
+        console.error('❌ chatRoomOutFromList API 오류:', error);
+        return false;
+    }
+};
+
+export const reportUser = async (reportedId: string, reason: string): Promise<boolean> => {
+    try {
+        const res = await apiClient.post('/user/report', { reportedId, reason });
+        return res.data?.success === true;
+    } catch (error) {
+        console.error('❌ reportUser API 오류:', error);
+        return false;
+    }
+};
+
+export const blockUser = async (blockedId: string): Promise<boolean> => {
+    try {
+        const res = await apiClient.post('/user/block', { blockedId });
+        return res.data?.success === true;
+    } catch (error) {
+        console.error('❌ blockUser API 오류:', error);
         return false;
     }
 };

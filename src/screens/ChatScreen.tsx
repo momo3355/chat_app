@@ -1,4 +1,6 @@
 import { View, FlatList, Keyboard, Platform, Alert, Text, Animated, Dimensions, ActivityIndicator } from 'react-native';
+import ReportModal from '../components/ReportModal';
+import { reportUser } from '../services/api/ChatApi';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { styles, uploadOverlayStyles } from '../styles/ChatMessge.styles';
@@ -27,7 +29,7 @@ const SCREEN_WIDTH = Dimensions.get('window').width;
 export default function ChatScreen() {
 const navigation = useNavigation();
 const route = useRoute<ChatScreenRouteProp>();
-const { userId, userName, roomId, roomName, token } = route.params;
+const { userId, userName, roomId, roomName, token, otherUserId } = route.params;
 
 const { messages, isConnected, sendMessage, disconnect, reconnect, mergePendingMessages, appendOlderMessages } = useChatWebSocket({ userId, userName, roomId, token });
 
@@ -51,7 +53,9 @@ useAppState(
   }, [disconnect]),
 );
 
-const { loadMessgeInfoPosts, chatFileUpload, chatRoomOut } = useChatStore();
+const { loadMessgeInfoPosts, chatFileUpload, chatRoomOut, toggleFavorite, blockAndLeave, roomList } = useChatStore();
+const currentRoom = roomList.find(r => r.roomId === roomId);
+const isFavorite = currentRoom?.favoriteYn === 'Y';
 
 const [lastMessageId, setLastMessageId] = useState(0);
 const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -115,6 +119,7 @@ const loadMoreHistory = useCallback(async () => {
   }
 }, [isLoadingMore, hasMore, lastMessageId, loadMessgeInfoPosts, appendOlderMessages, userId, roomId]);
 
+const [reportModalVisible, setReportModalVisible] = useState(false);
 const [inputMessage, setInputMessage] = useState('');
 const [keyboardHeight, setKeyboardHeight] = useState(0);
 const [pickerVisible, setPickerVisible] = useState(false);
@@ -164,6 +169,51 @@ const togglePicker = useCallback(() => {
   }
 }, [pickerVisible, pickerHeightAnim, closePicker]);
 
+
+const handleReport = useCallback(() => {
+  setReportModalVisible(true);
+}, []);
+
+const handleReportSubmit = useCallback(async (reason: string) => {
+  const reported = await reportUser(otherUserId, reason);
+  if (!reported) {
+    Alert.alert('오류', '신고 처리 중 오류가 발생했습니다.');
+    return;
+  }
+  setReportModalVisible(false);
+  sendMessage('QUIT', '');
+  disconnect();
+  await blockAndLeave(userId, roomId, otherUserId);
+  navigation.goBack();
+}, [otherUserId, userId, roomId, sendMessage, disconnect, blockAndLeave, navigation]);
+
+const handleBlock = useCallback(() => {
+  Alert.alert(
+    '차단하기',
+    `${roomName} 사용자를 차단하시겠습니까?\n차단 후 대화방에서 나가집니다.`,
+    [
+      { text: '취소', style: 'cancel' },
+      {
+        text: '차단',
+        style: 'destructive',
+        onPress: async () => {
+          sendMessage('QUIT', '');
+          disconnect();
+          const success = await blockAndLeave(userId, roomId, otherUserId);
+          if (success) {
+            navigation.goBack();
+          } else {
+            Alert.alert('오류', '차단 처리 중 오류가 발생했습니다.');
+          }
+        },
+      },
+    ],
+  );
+}, [roomName, sendMessage, disconnect, blockAndLeave, userId, roomId, otherUserId, navigation]);
+
+const handleFavorite = useCallback(() => {
+  toggleFavorite(userId, roomId);
+}, [userId, roomId, toggleFavorite]);
 
 const handleLeave = useCallback(async () => {
   sendMessage('QUIT', '');
@@ -247,6 +297,10 @@ const renderItem = useCallback(({ item }: { item: ChatItem }) => {
             ],
           )
         }
+        onReport={handleReport}
+        onBlock={handleBlock}
+        onFavorite={handleFavorite}
+        isFavorite={isFavorite}
       />
       <View style={{ flex: 1 }}>
         <FlatList
@@ -301,6 +355,12 @@ const renderItem = useCallback(({ item }: { item: ChatItem }) => {
         selectedUris={selectedImages}
         onSelectionChange={setSelectedImages}
         onClose={() => { setSelectedImages([]); closePicker(); }}
+      />
+
+      <ReportModal
+        visible={reportModalVisible}
+        onClose={() => setReportModalVisible(false)}
+        onSubmit={handleReportSubmit}
       />
 
       {isUploading && (

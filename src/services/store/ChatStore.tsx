@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { chatRoomList, loadMessgeInfoPosts, chatFileUpload, chatRoomOut as chatRoomOutApi } from '../api/ChatApi';
+import { chatRoomList, loadMessgeInfoPosts, chatFileUpload, chatRoomOut as chatRoomOutApi, chatRoomOutFromList as chatRoomOutFromListApi, chatRoomFavorite, blockUser } from '../api/ChatApi';
 import { ChatRoomFormData, ChatRoomState, ChatRoomActions } from '../../types/ChatRoomTypes';
 import { SearchMessgeInfoParams, MessgeInfoResponse } from '../../types/MessgeTypes.ts';
 
@@ -76,6 +76,47 @@ const useChatStore = create<ChatStore>((set) => ({
       }));
     }
     return success;
+  },
+
+  leaveFromList: async (userId: string, roomId: string, userName: string): Promise<boolean> => {
+    const success = await chatRoomOutFromListApi(userId, roomId, userName);
+    if (success) {
+      set(state => ({
+        roomList: state.roomList.filter(room => room.roomId !== roomId),
+      }));
+    }
+    return success;
+  },
+
+  blockAndLeave: async (userId: string, roomId: string, blockedId: string): Promise<boolean> => {
+    if (!blockedId) {
+      console.error('❌ blockAndLeave: blockedId가 없습니다.');
+      return false;
+    }
+    const blockSuccess = await blockUser(blockedId);
+    if (!blockSuccess) { return false; }
+    const leaveSuccess = await chatRoomOutApi(userId, roomId);
+    if (leaveSuccess) {
+      set(state => ({
+        roomList: state.roomList.filter(room => room.roomId !== roomId),
+      }));
+    }
+    return leaveSuccess;
+  },
+
+  toggleFavorite: async (userId: string, roomId: string): Promise<void> => {
+    // 낙관적 업데이트: UI 즉시 반영 후 서버 동기화
+    set(state => {
+      const updated = state.roomList.map(room =>
+        room.roomId === roomId
+          ? { ...room, favoriteYn: room.favoriteYn === 'Y' ? 'N' : 'Y' }
+          : room
+      );
+      const favorites = updated.filter(r => r.favoriteYn === 'Y');
+      const others    = updated.filter(r => r.favoriteYn !== 'Y');
+      return { roomList: [...favorites, ...others] };
+    });
+    await chatRoomFavorite(userId, roomId);
   },
 
   loadMessgeInfoPosts:async (params: SearchMessgeInfoParams): Promise<MessgeInfoResponse> => {

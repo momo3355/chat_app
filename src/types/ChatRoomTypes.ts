@@ -13,6 +13,7 @@ export interface ChatRoomPostsValue{
   lastMessageTime?: string;
   unreadCount?: number;
   lastType?: string;
+  favoriteYn?: string;
 }
 
 export interface ChatRoomPostResponse {
@@ -38,4 +39,7 @@ export interface ChatRoomActions {
   updateUnreadCount: (roomId: string, delta: number) => void;
   resetUnreadCount: (roomId: string) => void;
   chatRoomOut: (userId: string, roomId: string) => Promise<boolean>;
+  leaveFromList: (userId: string, roomId: string, userName: string) => Promise<boolean>;
+  toggleFavorite: (userId: string, roomId: string) => Promise<void>;
+  blockAndLeave: (userId: string, roomId: string, blockedId: string) => Promise<boolean>;
 }

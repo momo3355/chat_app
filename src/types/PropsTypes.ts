@@ -21,4 +21,8 @@ export interface ChatHeaderProps {
   isConnected: boolean;
   onBack: () => void;
   onLeave: () => void;
+  onReport?: () => void;
+  onBlock?: () => void;
+  onFavorite?: () => void;
+  isFavorite?: boolean;
 }

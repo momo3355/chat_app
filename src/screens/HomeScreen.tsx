@@ -78,6 +78,7 @@ const HomeScreen: FC<HomeScreenProps> = React.memo(({ isActive }) => {
               roomId,
               roomName: selectedUser.userName,
               token: token ?? '',
+              otherUserId: selectedUser.userId,
             });
           },
         },

@@ -57,6 +57,7 @@ export interface LoginState {
   isLoading: boolean;
   isLoggedIn: boolean;
   errorMsg: string | null;
+  credentials: LoginFormData | null;
 }
 
 // LoginStore 액션 타입

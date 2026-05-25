@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Image, useWindowDimensions } from 'react-native';
-import { styles } from '../styles/ChatMessge.styles';
+import { View, Text, Image, TouchableOpacity, Modal, useWindowDimensions } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import { styles, viewerStyles } from '../styles/ChatMessge.styles';
 import { ChatMessageProps } from '../types/PropsTypes';
-import { formatTime, getThumbnailUrl, getProfileUrl } from '../utils/Utils';
+import { formatTime, getThumbnailUrl, getOriginalUrl, getProfileUrl } from '../utils/Utils';
 
 const IMAGE_MAX_WIDTH_LIMIT = 230;
 // paddingHorizontal: 12 × 2
@@ -16,22 +17,24 @@ const TIME_SPACE = 70;
 const imageSizeCache = new Map<string, { width: number; height: number }>();
 
 const ImageMessage: React.FC<{ imageInfo?: string; sender?: string; maxWidth: number }> = ({ imageInfo, sender, maxWidth }) => {
-  const url = getThumbnailUrl(imageInfo, sender);
-  const cacheKey = `${url}_${maxWidth}`;
+  const thumbnailUrl = getThumbnailUrl(imageInfo, sender);
+  const originalUrl = getOriginalUrl(imageInfo);
+  const cacheKey = `${thumbnailUrl}_${maxWidth}`;
+  const [viewerVisible, setViewerVisible] = useState(false);
 
   const [imgSize, setImgSize] = useState<{ width: number; height: number }>(() => {
     return imageSizeCache.get(cacheKey) ?? { width: maxWidth, height: maxWidth * 3 / 4 };
   });
 
   useEffect(() => {
-    if (!url) { return; }
+    if (!thumbnailUrl) { return; }
     const cached = imageSizeCache.get(cacheKey);
     if (cached) {
       setImgSize(cached);
       return;
     }
     Image.getSize(
-      url,
+      thumbnailUrl,
       (naturalWidth, naturalHeight) => {
         const displayHeight = (naturalHeight / naturalWidth) * maxWidth;
         const size = { width: maxWidth, height: displayHeight };
@@ -44,14 +47,33 @@ const ImageMessage: React.FC<{ imageInfo?: string; sender?: string; maxWidth: nu
         setImgSize(fallback);
       },
     );
-  }, [url, cacheKey, maxWidth]);
+  }, [thumbnailUrl, cacheKey, maxWidth]);
 
   return (
-    <Image
-      source={{ uri: url }}
-      style={[styles.imageThumbnail, { width: imgSize.width, height: imgSize.height }]}
-      resizeMode="contain"
-    />
+    <>
+      <TouchableOpacity onPress={() => setViewerVisible(true)} activeOpacity={0.9}>
+        <Image
+          source={{ uri: thumbnailUrl }}
+          style={[styles.imageThumbnail, { width: imgSize.width, height: imgSize.height }]}
+          resizeMode="contain"
+        />
+      </TouchableOpacity>
+
+      <Modal visible={viewerVisible} transparent animationType="fade" onRequestClose={() => setViewerVisible(false)}>
+        <View style={viewerStyles.overlay}>
+          <TouchableOpacity style={viewerStyles.closeBtn} onPress={() => setViewerVisible(false)}>
+            <Icon name="close" size={28} color="#FFFFFF" />
+          </TouchableOpacity>
+          <TouchableOpacity style={viewerStyles.imageArea} activeOpacity={1} onPress={() => setViewerVisible(false)}>
+            <Image
+              source={{ uri: originalUrl }}
+              style={viewerStyles.image}
+              resizeMode="contain"
+            />
+          </TouchableOpacity>
+        </View>
+      </Modal>
+    </>
   );
 };
 

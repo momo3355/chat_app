@@ -122,6 +122,7 @@ const FeedScreen: FC<FeedScreenProps> = React.memo(({ isActive }) => {
               roomId,
               roomName: selectedUser.userName,
               token: token ?? '',
+              otherUserId: selectedUser.userId,
             });
           },
         },
@@ -151,6 +152,7 @@ const FeedScreen: FC<FeedScreenProps> = React.memo(({ isActive }) => {
               roomId,
               roomName: feedItem.userName,
               token: token ?? '',
+              otherUserId: feedItem.userId,
             });
           },
         },

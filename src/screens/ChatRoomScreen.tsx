@@ -48,8 +48,7 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
   const navigation = useNavigation<NavigationProp>();
   const { user } = useLoginStore();
   const { token } = useFCMStore();
-  const { roomList, isLoading, errorMsg, fetchRoomList, resetUnreadCount, chatRoomOut } = useChatStore();
-  const [likedRoomIds, setLikedRoomIds] = useState<Set<string>>(new Set());
+  const { roomList, isLoading, errorMsg, fetchRoomList, resetUnreadCount, leaveFromList, toggleFavorite } = useChatStore();
   const isFocused = useIsFocused();
 
   useFocusEffect(useCallback(() => {
@@ -87,12 +86,8 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
   };
 
   const handleLike = useCallback((roomId: string) => {
-    setLikedRoomIds(prev => {
-      const next = new Set(prev);
-      next.has(roomId) ? next.delete(roomId) : next.add(roomId);
-      return next;
-    });
-  }, []);
+    if (user?.userId) toggleFavorite(user.userId, roomId);
+  }, [user?.userId, toggleFavorite]);
 
   const handleLeave = useCallback((roomId: string, roomName: string) => {
     Alert.alert('대화방 나가기', `'${roomName}' 대화방을 나가시겠습니까?`, [
@@ -101,12 +96,11 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
         text: '나가기',
         style: 'destructive',
         onPress: async () => {
-          await chatRoomOut(user?.userId ?? '', roomId);
-          if (user?.userId) fetchRoomList({ userId: user.userId });
+          await leaveFromList(user?.userId ?? '', roomId, user?.userName ?? '');
         },
       },
     ]);
-  }, [chatRoomOut, fetchRoomList, user?.userId]);
+  }, [leaveFromList, user?.userId, user?.userName]);
 
   const renderRoomItem = ({ item }: { item: ChatRoomPostsValue }) => (
     <TouchableOpacity
@@ -120,6 +114,7 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
           roomId: item.roomId ?? '',
           roomName: item.roomName ?? '',
           token: token ?? '',
+          otherUserId: item.otherUserId ?? '',
         });
       }}
     >
@@ -130,9 +125,13 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
             <Text style={[styles.roomName, { color: item.gender === 'W' ? '#db2777' : '#3DBFA8' }]} numberOfLines={1}>
               {item.roomName ?? '이름 없음'}
             </Text>
-            <View style={styles.unreadBadge}>
-              <Text style={styles.unreadBadgeText}>5</Text>
-            </View>
+            {(item.unreadCount ?? 0) > 0 && (
+              <View style={styles.unreadBadge}>
+                <Text style={styles.unreadBadgeText}>
+                  {(item.unreadCount ?? 0) > 99 ? '99+' : item.unreadCount}
+                </Text>
+              </View>
+            )}
           </View>
           <Text style={styles.roomDate}>{formatDate(item.lastMessageTime)}</Text>
         </View>
@@ -146,9 +145,9 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
               hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             >
               <Icon
-                name={likedRoomIds.has(item.roomId ?? '') ? 'favorite' : 'favorite-border'}
+                name={item.favoriteYn === 'Y' ? 'favorite' : 'favorite-border'}
                 size={20}
-                color={likedRoomIds.has(item.roomId ?? '') ? '#e11d48' : '#ccc'}
+                color={item.favoriteYn === 'Y' ? '#e11d48' : '#ccc'}
               />
             </TouchableOpacity>
             <TouchableOpacity

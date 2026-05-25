@@ -55,6 +55,11 @@ export const getFeedThumbnailUrl = (imageUrl?: string): string => {
   return `${SERVER_BASE_URL}${base}_thumbnail.jpg`;
 };
 
+export const getOriginalUrl = (imageInfo?: string): string => {
+  if (!imageInfo) { return ''; }
+  return `${SERVER_BASE_URL}/uploads/${imageInfo}`;
+};
+
 export const getThumbnailUrl = (imageInfo?: string, userId?: string): string => {
   if (!imageInfo) { return ''; }
   // imageInfo에 이미 userId가 포함된 경우 (userId/filename) 그대로 사용

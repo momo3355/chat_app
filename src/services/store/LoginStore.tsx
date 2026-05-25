@@ -15,6 +15,7 @@ const useLoginStore = create<LoginStore>()(
       isLoading: false,
       isLoggedIn: false,
       errorMsg: null,
+      credentials: null,
 
       // 로그인 액션
       login: async (formData: LoginFormData): Promise<boolean> => {
@@ -29,6 +30,7 @@ const useLoginStore = create<LoginStore>()(
               isLoggedIn: true,
               isLoading: false,
               errorMsg: null,
+              credentials: formData,
             });
             // 로그인 성공 후 FCM 토큰 초기화 (토큰 발급 완료까지 대기)
             const token = await useFCMStore.getState().initToken();
@@ -62,6 +64,7 @@ const useLoginStore = create<LoginStore>()(
           user: null,
           isLoggedIn: false,
           errorMsg: null,
+          credentials: null,
         });
       },
 
@@ -84,6 +87,7 @@ const useLoginStore = create<LoginStore>()(
       partialize: (state) => ({
         user: state.user,
         isLoggedIn: state.isLoggedIn,
+        credentials: state.credentials,
       }),
     }
   )
