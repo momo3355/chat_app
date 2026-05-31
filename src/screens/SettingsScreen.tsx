@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react';
-import { View, Text, TouchableOpacity, StatusBar, Alert, Switch, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, StatusBar, Alert, Switch, ActivityIndicator, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { RewardedAd, RewardedAdEventType, AdEventType, TestIds } from 'react-native-google-mobile-ads';
+import { RewardedAd, RewardedAdEventType, AdEventType, TestIds, BannerAd, BannerAdSize } from 'react-native-google-mobile-ads';
 import { styles, Colors } from '../styles/Settings.styles';
 import useFCMStore from '../services/store/FCMStore';
 import useLoginStore from '../services/store/LoginStore';
@@ -13,6 +13,7 @@ import usePointStore from '../services/store/PointStore';
 
 const APP_VERSION = '0.0.1';
 const REWARD_AD_UNIT_ID = __DEV__ ? TestIds.REWARDED : 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX';
+const BANNER_AD_UNIT_ID = __DEV__ ? TestIds.BANNER : 'ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX';
 const LAST_REWARD_KEY = '@last_reward_date';
 
 const SettingsScreen: React.FC = () => {
@@ -79,110 +80,121 @@ const SettingsScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['bottom']}>
       <StatusBar barStyle="dark-content" backgroundColor={Colors.background} />
+      <ScrollView>
 
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('ProfileEditScreen')}
-          activeOpacity={0.7}
-        >
-          <Icon name="person" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
-          <Text style={styles.menuText}>내 프로필</Text>
-          <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.menuItem, styles.menuItemBorder]}
-          onPress={() => navigation.navigate('LocationMapScreen', { mode: 'update' })}
-          activeOpacity={0.7}
-        >
-          <Icon name="location-on" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
-          <Text style={styles.menuText}>동네 인증하기</Text>
-          <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.menuItem, styles.menuItemBorder]}
-          onPress={() => navigation.navigate('BlockedUsersScreen')}
-          activeOpacity={0.7}
-        >
-          <Icon name="block" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
-          <Text style={styles.menuText}>차단한 회원</Text>
-          <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
-        </TouchableOpacity>
-        <View style={[styles.menuItem, styles.menuItemBorder]}>
-          <Icon name="notifications" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
-          <Text style={styles.menuText}>푸시 알림</Text>
-          <Switch
-            value={pushEnabled}
-            onValueChange={(val) => { if (userId) setPushEnabled(val, userId); }}
-            trackColor={{ false: Colors.border, true: Colors.primary }}
-            thumbColor={Colors.white}
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('ProfileEditScreen')}
+            activeOpacity={0.7}
+          >
+            <Icon name="person" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
+            <Text style={styles.menuText}>내 프로필</Text>
+            <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuItem, styles.menuItemBorder]}
+            onPress={() => navigation.navigate('LocationMapScreen', { mode: 'update' })}
+            activeOpacity={0.7}
+          >
+            <Icon name="location-on" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
+            <Text style={styles.menuText}>동네 인증하기</Text>
+            <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuItem, styles.menuItemBorder]}
+            onPress={() => navigation.navigate('BlockedUsersScreen')}
+            activeOpacity={0.7}
+          >
+            <Icon name="block" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
+            <Text style={styles.menuText}>차단한 회원</Text>
+            <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
+          </TouchableOpacity>
+          <View style={[styles.menuItem, styles.menuItemBorder]}>
+            <Icon name="notifications" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
+            <Text style={styles.menuText}>푸시 알림</Text>
+            <Switch
+              value={pushEnabled}
+              onValueChange={(val) => { if (userId) setPushEnabled(val, userId); }}
+              trackColor={{ false: Colors.border, true: Colors.primary }}
+              thumbColor={Colors.white}
+            />
+          </View>
+        </View>
+
+        <View style={styles.adContainer}>
+          <BannerAd
+            unitId={BANNER_AD_UNIT_ID}
+            size={BannerAdSize.MEDIUM_RECTANGLE}
+            requestOptions={{ requestNonPersonalizedAdsOnly: true }}
           />
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={() => navigation.navigate('InquiryScreen')}
-          activeOpacity={0.7}
-        >
-          <Icon name="help-outline" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
-          <Text style={styles.menuText}>문의하기</Text>
-          <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.menuItem, styles.menuItemBorder]}
-          onPress={() => navigation.navigate('PrivacyPolicyScreen')}
-          activeOpacity={0.7}
-        >
-          <Icon name="privacy-tip" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
-          <Text style={styles.menuText}>개인정보 취급방침</Text>
-          <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.menuItem, styles.menuItemBorder]}
-          onPress={() => navigation.navigate('TermsScreen')}
-          activeOpacity={0.7}
-        >
-          <Icon name="description" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
-          <Text style={styles.menuText}>서비스 이용약관</Text>
-          <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
-        </TouchableOpacity>
-        <View style={[styles.menuItem, styles.menuItemBorder]}>
-          <Icon name="info-outline" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
-          <Text style={styles.menuText}>버전 정보</Text>
-          <Text style={styles.versionText}>{APP_VERSION}</Text>
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={handleRewardAd}
+            disabled={isLoadingAd}
+            activeOpacity={0.7}
+          >
+            <Icon name="card-giftcard" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
+            <Text style={styles.menuText}>광고로 보상받기</Text>
+            {isLoadingAd
+              ? <ActivityIndicator size="small" color={Colors.primary} />
+              : <Text style={styles.rewardText}>+30P</Text>
+            }
+          </TouchableOpacity>
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={handleRewardAd}
-          disabled={isLoadingAd}
-          activeOpacity={0.7}
-        >
-          <Icon name="card-giftcard" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
-          <Text style={styles.menuText}>광고로 보상받기</Text>
-          {isLoadingAd
-            ? <ActivityIndicator size="small" color={Colors.primary} />
-            : <Text style={styles.rewardText}>+30P</Text>
-          }
-        </TouchableOpacity>
-      </View>
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={() => navigation.navigate('InquiryScreen')}
+            activeOpacity={0.7}
+          >
+            <Icon name="help-outline" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
+            <Text style={styles.menuText}>문의하기</Text>
+            <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuItem, styles.menuItemBorder]}
+            onPress={() => navigation.navigate('PrivacyPolicyScreen')}
+            activeOpacity={0.7}
+          >
+            <Icon name="privacy-tip" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
+            <Text style={styles.menuText}>개인정보 취급방침</Text>
+            <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.menuItem, styles.menuItemBorder]}
+            onPress={() => navigation.navigate('TermsScreen')}
+            activeOpacity={0.7}
+          >
+            <Icon name="description" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
+            <Text style={styles.menuText}>서비스 이용약관</Text>
+            <Icon name="chevron-right" size={20} color={Colors.textSecondary} />
+          </TouchableOpacity>
+          <View style={[styles.menuItem, styles.menuItemBorder]}>
+            <Icon name="info-outline" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
+            <Text style={styles.menuText}>버전 정보</Text>
+            <Text style={styles.versionText}>{APP_VERSION}</Text>
+          </View>
+        </View>
 
-      <View style={styles.section}>
-        <TouchableOpacity
-          style={styles.menuItem}
-          onPress={handleDeleteAccount}
-          activeOpacity={0.7}
-        >
-          <Icon name="exit-to-app" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
-          <Text style={[styles.menuText, styles.deleteText]}>탈퇴하기</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.section}>
+          <TouchableOpacity
+            style={styles.menuItem}
+            onPress={handleDeleteAccount}
+            activeOpacity={0.7}
+          >
+            <Icon name="exit-to-app" size={22} color={Colors.textSecondary} style={styles.menuIcon} />
+            <Text style={[styles.menuText, styles.deleteText]}>탈퇴하기</Text>
+          </TouchableOpacity>
+        </View>
+
+      </ScrollView>
     </SafeAreaView>
   );
 };

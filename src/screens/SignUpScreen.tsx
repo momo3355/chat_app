@@ -270,7 +270,7 @@ const SignUpScreen: React.FC<Props> = ({ navigation, route }) => {
       });
       if (result.success) {
         Alert.alert('완료', '회원가입이 완료되었습니다.', [
-          { text: '확인', onPress: () => navigation.navigate('Login') },
+          { text: '확인', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Login' }] }) },
         ]);
       } else {
         Alert.alert('오류', result.errorMsg || '회원가입에 실패했습니다.');

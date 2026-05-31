@@ -29,7 +29,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ navigation }) => {
     if (isFormValid) {
       const success = await login(formData);
       if (success) {
-        navigation.navigate('Home');
+        navigation.reset({ index: 0, routes: [{ name: 'Home' }] });
       } else {
         Alert.alert('로그인 실패', errorMsg || '로그인에 실패했습니다.');
         clearError();

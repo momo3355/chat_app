@@ -12,6 +12,15 @@ export const Colors = {
 
 export const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
+  adContainer: {
+    alignItems: 'center',
+    backgroundColor: Colors.white,
+    marginTop: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderBottomWidth: 1,
+    borderColor: Colors.border,
+  },
   section: {
     backgroundColor: Colors.white,
     marginTop: 16,
