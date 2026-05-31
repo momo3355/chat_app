@@ -14,6 +14,7 @@ import useFCMStore from '../services/store/FCMStore';
 import FeedItem from '../components/FeedItem';
 import ProfileModal from '../components/ProfileModal';
 import SearchFilterBar from '../components/SearchFilterBar';
+import AdBanner from '../components/AdBanner';
 import { chatRoomCreate } from '../services/api/ChatApi';
 import { FeedItem as FeedItemType } from '../types/FeedTypes';
 import { UserSearchItem } from '../types/UserInfoTypes';
@@ -230,6 +231,8 @@ const FeedScreen: FC<FeedScreenProps> = React.memo(({ isActive }) => {
           contentContainerStyle={feedList.length === 0 ? { flex: 1 } : styles.listContent}
         />
       </SearchFilterBar>
+
+      <AdBanner />
 
       <ProfileModal
         user={selectedUser}

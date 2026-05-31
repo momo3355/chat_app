@@ -14,6 +14,7 @@ import FeedWriteScreen from '../screens/FeedWriteScreen';
 import ChatScreen from '../screens/ChatScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import ProfileEditScreen from '../screens/ProfileEditScreen';
+import BlockedUsersScreen from '../screens/BlockedUsersScreen';
 import TopHeader from '../components/TopHeader';
 
 import { styles } from '../styles/MainNavigator.styles';
@@ -121,6 +122,7 @@ const MainAppNavigator = () => {
       <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="FeedWriteScreen" component={FeedWriteScreen} />
       <Stack.Screen name="ProfileEditScreen" component={ProfileEditScreen} />
+      <Stack.Screen name="BlockedUsersScreen" component={BlockedUsersScreen} />
     </Stack.Navigator>
   );
 };

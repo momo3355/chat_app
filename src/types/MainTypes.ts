@@ -11,4 +11,5 @@ export type MainStackParamList = {
   ChatScreen: { userId: string; userName: string; roomId: string; roomName: string; token: string; otherUserId: string };
   FeedWriteScreen: { editFeedId?: number; initialContent?: string; initialImages?: string[] };
   ProfileEditScreen: undefined;
+  BlockedUsersScreen: undefined;
 };

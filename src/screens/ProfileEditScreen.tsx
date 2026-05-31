@@ -38,7 +38,13 @@ const ProfileEditScreen: React.FC = () => {
 
   useEffect(() => {
     getMyProfile().then(profile => {
-      if (profile.area != null) updateUser({ area: profile.area });
+      const updates: Parameters<typeof updateUser>[0] = {};
+      if (profile.area != null) updates.area = profile.area;
+      if (profile.greetings !== undefined) {
+        updates.greetings = profile.greetings;
+        setGreetings(profile.greetings ?? '');
+      }
+      if (Object.keys(updates).length > 0) updateUser(updates);
     }).catch(() => {});
   }, [updateUser]);
 

@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Alert,
 } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useFocusEffect, useNavigation, useIsFocused } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -19,6 +20,7 @@ import { ChatRoomPostsValue } from '../types/ChatRoomTypes';
 import { MainStackParamList } from '../types/MainTypes.ts';
 import { formatTime, parseLocalDate, getProfileUrl } from '../utils/Utils';
 import useAppState from '../hooks/useAppState';
+import AdBanner from '../components/AdBanner';
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList, 'Main'>;
 
@@ -45,6 +47,7 @@ const RoomIcon = ({ userId, name }: { userId?: string; name?: string }) => {
 };
 
 const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<NavigationProp>();
   const { user } = useLoginStore();
   const { token } = useFCMStore();
@@ -171,7 +174,7 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingBottom: Math.max(insets.bottom, 16) }]}>
       {errorMsg && <Text style={styles.errorText}>{errorMsg}</Text>}
 
       {roomList.length === 0 ? (
@@ -186,6 +189,8 @@ const ChatRoomScreen = React.memo(({ isActive }: { isActive?: boolean }) => {
           contentContainerStyle={styles.listContainer}
         />
       )}
+
+      <AdBanner />
     </View>
   );
 });

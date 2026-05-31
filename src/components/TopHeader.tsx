@@ -1,11 +1,11 @@
-import React, { useEffect, useState, type ReactNode } from 'react';
+import React, { useEffect, type ReactNode } from 'react';
 import { View, Text } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { topHeaderStyles as styles } from '../styles/TopHeader.styles';
-import { getUserPoint } from '../services/UserInfoApi';
+import usePointStore from '../services/store/PointStore';
 
 interface Props {
   label: string;
@@ -14,11 +14,12 @@ interface Props {
 
 const TopHeader: React.FC<Props> = ({ label, actionSlot }) => {
   const insets = useSafeAreaInsets();
-  const [point, setPoint] = useState<number>(0);
+  const point = usePointStore(state => state.point);
+  const fetchPoint = usePointStore(state => state.fetchPoint);
 
   useEffect(() => {
-    getUserPoint().then(setPoint).catch(() => {});
-  }, []);
+    fetchPoint();
+  }, [fetchPoint]);
 
   return (
     <View style={{ paddingTop: insets.top }}>

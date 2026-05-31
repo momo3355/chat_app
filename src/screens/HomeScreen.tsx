@@ -19,6 +19,7 @@ import { useDistanceSlider } from '../hooks/useDistanceSlider';
 import UserListItem from '../components/UserListItem';
 import ProfileModal from '../components/ProfileModal';
 import SearchFilterBar, { SearchFilterBarHandle } from '../components/SearchFilterBar';
+import AdBanner from '../components/AdBanner';
 
 const HOME_AGES = Array.from({ length: 42 }, (_, i) => i + 19); // 19~60
 
@@ -183,6 +184,8 @@ const HomeScreen: FC<HomeScreenProps> = React.memo(({ isActive }) => {
           contentContainerStyle={userList.length === 0 ? { flex: 1 } : styles.userListContent}
         />
       </SearchFilterBar>
+
+      <AdBanner />
 
       <ProfileModal
         user={selectedUser}
